@@ -1,24 +1,30 @@
 <?php
   $nameCaptain = $nameEpicMount = "";
-  $subTestArray = array("subSteak"=>"1", "subChicken"=>"1", "subBacon"=>"1", "subTurkey"=>"1", "subHam"=>"1", "subLettuce"=>"1", "subPickles"=>"1", "subOlives"=>"1", "subTomatoes"=>"1", "subOnions"=>"1", "subCheeseA"=>"1", "subCheesePJ"=>"1", "subMayo"=>"1", "subMustard"=>"1", "subKetchup"=>"1", "subPepper"=>"1");
+  $subTestArray = array("Steak"=>"1", "Chicken"=>"1", "Bacon"=>"1", "Turkey"=>"1", "Ham"=>"1", "Lettuce"=>"1", "Pickles"=>"1", "Olives"=>"1", "Tomatoes"=>"1", "Onions"=>"1", "American Cheese"=>"1", "Pepperjack Cheese"=>"1", "Mayonnaise"=>"1", "Mustard"=>"1", "Ketchup"=>"1", "Pepper"=>"1");
+  $captKey = array();
+  $mountKey = array();
+  $subKey = array();
+  $scaleKey = array();
   $morningScaleValue = 0;
   $errCapt = $errMount = $errSub = $errScale = "";
+  $testArray = array("Kirk", "Reynolds", "Reynolds");
 
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($_POST["captainPicker"])) {
       $errCapt = "Please choose your favorite captain";
     } else {
       $nameCaptain = test_input($_POST["captainPicker"]);
+      appendToFile("fileCapt.txt", $nameCaptain);
     }
 
     if (empty($_POST["epicMountText"])) {
       $errMount = "Please choose an epic mount";
+    } else if (!preg_match("/^[a-zA-Z ]*$/",$nameEpicMount)) {
+      $errMount = "Name invalid - Do not use special characters";
+      $nameEpicMount = "";
     } else {
       $nameEpicMount = test_input($_POST["epicMountText"]);
-      if (!preg_match("/^[a-zA-Z ]*$/",$nameEpicMount)) {
-        $errMount = "Name invalid - Do not use special characters";
-        $nameEpicMount = "";
-      }
+      appendToFile("fileMount.txt", $nameEpicMount);
     }
 
     if (!isset($_POST["subSandwich"])) {
@@ -26,12 +32,14 @@
     } else {
       $arraySub = $_POST["subSandwich"];
       test_subSandwich($arraySub);
+      appendToFile("fileSub.txt", $arraySub);
     }
 
     if (empty($_POST["morningScale"]) || !ctype_digit($_POST["morningScale"])) {
       $errScale = "Whoa?  You broke the scale.  Fix it!";
     } else {
       $morningScaleValue = $_POST["morningScale"];
+      appendToFile("fileScale.txt", $morningScaleValue);
     }
   }
 
@@ -57,6 +65,41 @@
     }
   }
 
+  function readFileToArray($fileName) {
+    //Reads a simple file format.  One answer per line
+    $myfile = fOpen($fileName, "r") or die("Unable to open file!");
+    $arrayRead = array();
+    while(!feof($myfile)) {
+      $line = trim(fgets($myfile));
+      $arrayRead[] = $line;
+    }
+    fclose($myfile);
+    return $arrayRead;
+  }
+
+  function tallyResults(&$arrayRead, &$arrayKey) {
+    //Take an array and tally the amount of times array values repeat against a keyed array of those values
+    $arrlength = count($arrayRead);
+    for ($x = 0; $x < $arrlength; $x++) {
+      if (array_key_exists($arrayRead[$x], $arrayKey)) {
+        $arrayKey[$arrayRead[$x]] += 1;
+      } else {
+        $arrayKey[$arrayRead[$x]] = 1;
+      }
+    }
+  }
+
+  function appendToFile($fileName, &$data) {
+    $myfile = fOpen($fileName, "a") or die("Unable to open file");
+    if (is_array($data)) {
+      $arrlength = count($data);
+      for ($x = 0; $x < $arrlength; $x++) {
+        fwrite($myfile, $data[$x] . "\n");
+      }
+    } else {
+      fwrite($myfile, $data . "\n");
+    }
+  }
  ?>
 
 <DOCTYPE! HTML>
@@ -109,9 +152,13 @@
         echo "$errMount";
         echo "$nameEpicMount<br/>";
         echo "$errSub";
-        echo implode(", ", $arraySub) . "<br/>";
+        if(isset($arraySub)) {echo implode(", ", $arraySub) . "<br/>";} else {echo "<br />";}
         echo "$errScale";
         echo "$morningScaleValue<br/>";
+        $captArray = readFileToArray("fileCapt.txt");
+        if(isset($captArray)) {echo implode(", ", $captArray) . "<br/>";} else {echo "<br />";}
+        tallyResults($captArray, $captKey);
+        echo $captKey['Reynolds'];
         ?>
       </p>
     </div>

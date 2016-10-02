@@ -70,7 +70,7 @@
             </div>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="captainPicker" id="mal" value="Mal" />
+                <input type="radio" class="form-check-input" name="captainPicker" id="reynolds" value="Reynolds" />
                 Malcolm Reynolds
               </label>
             </div>
@@ -85,64 +85,64 @@
             <div class="container">
               <div class="row">
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subSteak"/>Steak
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Steak"/>Steak
                 </label>
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subChicken"/>Chicken
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Chicken"/>Chicken
                 </label>
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subBacon"/>Bacon
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Bacon"/>Bacon
                 </label>
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subTurkey"/>Turkey
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Turkey"/>Turkey
                 </label>
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subHam"/>Ham
-                </label>
-              </div>
-            </div>
-            <div class="container">
-              <div class="row">
-                <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subLettuce"/>Lettuce
-                </label>
-                <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subPickles"/>Pickles
-                </label>
-                <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subOlives"/>Olives
-                </label>
-                <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subTomatoes"/>Tomatoes
-                </label>
-                <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subOnions"/>Onions
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Ham"/>Ham
                 </label>
               </div>
             </div>
             <div class="container">
               <div class="row">
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subCheeseA"/>American Cheese
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Lettuce"/>Lettuce
                 </label>
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subCheesePJ"/>Pepperjack Cheese
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Pickles"/>Pickles
+                </label>
+                <label class="form-check-label">
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Olives"/>Olives
+                </label>
+                <label class="form-check-label">
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Tomatoes"/>Tomatoes
+                </label>
+                <label class="form-check-label">
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Onions"/>Onions
+                </label>
+              </div>
+            </div>
+            <div class="container">
+              <div class="row">
+                <label class="form-check-label">
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="American Cheese"/>American Cheese
+                </label>
+                <label class="form-check-label">
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Pepperjack Cheese"/>Pepperjack Cheese
                 </label>
               </div>
             </div>
             <div class="container" id="condimentArea">
               <div class="row">
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subMayo"/>Mayonnaise
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Mayonnaise"/>Mayonnaise
                 </label>
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subMustard"/>Mustard
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Mustard"/>Mustard
                 </label>
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subKetchup"/>Ketchup
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Ketchup"/>Ketchup
                 </label>
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="subPepper"/>Black Pepper
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Pepper"/>Black Pepper
                 </label>
               </div>
             </div>
