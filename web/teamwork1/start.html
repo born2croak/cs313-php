@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <form action="forms.php" method="post">
+      <strong>Name:</strong> <input type="text" name="name"><br><br>
+      <strong>Email:</strong> <input type="text" name="email"><br><br>
+      <strong>Select your major:</strong><br>
+      <input type="radio" name="major" value="CS" checked>Computer Science<br>
+      <input type="radio" name="major" value="WD"> Web Development and Design<br>
+      <input type="radio" name="major" value="CIT"> Computer Information Technology<br>
+      <input type="radio" name="major" value="CE"> Computer Engineering<br><br>
+      <strong>Select all of the places you have visited:</strong><br>
+      <input type="checkbox" name="continent[]" value="NA">North America<br>
+      <input type="checkbox" name="continent[]" value="SA">South America<br>
+      <input type="checkbox" name="continent[]" value="EU">Europe<br>
+      <input type="checkbox" name="continent[]" value="AS">Asia<br>
+      <input type="checkbox" name="continent[]" value="AU">Australia<br>
+      <input type="checkbox" name="continent[]" value="AF">Africa<br>
+      <input type="checkbox" name="continent[]" value="AN">Antarctica<br><br>
+	   Comments:<br>
+      <textarea name='comment' id='comment'></textarea><br><br>
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>
+

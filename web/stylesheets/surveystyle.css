@@ -1,0 +1,20 @@
+body {
+  padding-top: 50px;
+}
+
+.form-check-label {
+  margin-left: 5px;
+  margin-right: 10px;
+}
+
+input[type=checkbox] {
+  margin: 5px 5px 0;
+}
+
+input[type=range] {
+  width: 100%;
+}
+
+#condimentArea {
+  margin-bottom: 15px;
+}

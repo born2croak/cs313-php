@@ -7,15 +7,3 @@ body {
 
   padding-top: 50px;
 }
-
-nav {
-  background: #ebf1f6; /* Old browsers */
-  background: -moz-linear-gradient(top, #ebf1f6 0%, #d5ebfb 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top, #ebf1f6 0%,#d5ebfb 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom, #ebf1f6 0%,#d5ebfb 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ebf1f6', endColorstr='#d5ebfb',GradientType=0 ); /* IE6-9 */
-}
-
-nav ul {
-  margin-top: 5px;
-}
