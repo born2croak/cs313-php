@@ -83,10 +83,15 @@
     for ($x = 0; $x < $arrlength; $x++) {
       if (array_key_exists($arrayRead[$x], $arrayKey)) {
         $arrayKey[$arrayRead[$x]] += 1;
-      } else {
+      } else if ($arrayRead[$x]!=""){
         $arrayKey[$arrayRead[$x]] = 1;
       }
     }
+  }
+
+  function sortResults(&$arrayKey) {
+    //sorts an associative array by element
+    arsort($arrayKey);
   }
 
   function appendToFile($fileName, &$data) {
@@ -115,6 +120,9 @@
   <!-- Custom CSS overrides -->
   <link rel="stylesheet" type="text/css" href="../stylesheets/navstyle.css" />
   <link rel="stylesheet" type="text/css" href="../stylesheets/surveystyle.css" />
+  <script src="../JavaScript/results.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.min.js"></script>
 
 </head>
 <body>
@@ -148,19 +156,84 @@
       <p>
         <?php
         echo "$errCapt";
-        echo "$nameCaptain<br/>";
         echo "$errMount";
-        echo "$nameEpicMount<br/>";
         echo "$errSub";
-        if(isset($arraySub)) {echo implode(", ", $arraySub) . "<br/>";} else {echo "<br />";}
         echo "$errScale";
-        echo "$morningScaleValue<br/>";
-        $captArray = readFileToArray("fileCapt.txt");
-        if(isset($captArray)) {echo implode(", ", $captArray) . "<br/>";} else {echo "<br />";}
-        tallyResults($captArray, $captKey);
-        echo $captKey['Reynolds'];
         ?>
       </p>
+    </div>
+    <div class ="row">
+      <h2>Most Popular Captain</h2>
+      <?php
+        $captArray = readFileToArray("fileCapt.txt");
+        tallyResults($captArray, $captKey);
+      ?>
+      <canvas id="captChart" width="400" height="400"></canvas>
+      <script type="text/javascript">
+        drawCaptChart(<?php echo json_encode($captKey); ?>);
+      </script>
+    </div>
+    <div class="row">
+      <h2>Top 5 Epic Mounts</h2>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>
+              Epic Beast
+            </th>
+            <th>
+              Number of votes
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+            $mountArray = readFileToArray("fileMount.txt");
+            tallyResults($mountArray, $mountKey);
+            sortResults($mountKey);
+            $count = 0;
+            foreach ($mountKey as $key => $val) {
+              if ($count > 4) {
+                break;
+              } else {
+              echo "<tr><td>$key</td><td>$val</td></tr>";
+              $count++;
+              }
+            }
+          ?>
+        </tbody>
+      </table>
+    </div>
+    <div class="row">
+      <h2>Top 5 Sandwich Ingredients</h2>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>
+              Ingredient
+            </th>
+            <th>
+              Number of votes
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+            $subArray = readFileToArray("fileSub.txt");
+            tallyResults($subArray, $subKey);
+            sortResults($subKey);
+            $count = 0;
+            foreach ($subKey as $key => $val) {
+              if ($count > 4) {
+                break;
+              } else {
+              echo "<tr><td>$key</td><td>$val</td></tr>";
+              $count++;
+              }
+            }
+          ?>
+        </tbody>
+      </table>
     </div>
   </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
