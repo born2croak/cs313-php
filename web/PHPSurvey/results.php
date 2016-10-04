@@ -1,47 +1,76 @@
 <?php
-  $nameCaptain = $nameEpicMount = "";
-  $subTestArray = array("Steak"=>"1", "Chicken"=>"1", "Bacon"=>"1", "Turkey"=>"1", "Ham"=>"1", "Lettuce"=>"1", "Pickles"=>"1", "Olives"=>"1", "Tomatoes"=>"1", "Onions"=>"1", "American Cheese"=>"1", "Pepperjack Cheese"=>"1", "Mayonnaise"=>"1", "Mustard"=>"1", "Ketchup"=>"1", "Pepper"=>"1");
+  session_start();
+
+  $subTestArray = array("Steak"=>"1", "Chicken"=>"1", "Bacon"=>"1", "Turkey"=>"1", "Ham"=>"1", "Lettuce"=>"1", "Pickles"=>"1", "Olives"=>"1", "Tomatoes"=>"1", "Onions"=>"1", "American Cheese"=>"1", "Pepperjack Cheese"=>"1", "Mayonnaise"=>"1", "Mustard"=>"1", "Ketchup"=>"1", "Black Pepper"=>"1");
   $captKey = array();
   $mountKey = array();
   $subKey = array();
   $scaleKey = array();
-  $morningScaleValue = 0;
-  $errCapt = $errMount = $errSub = $errScale = "";
-  $testArray = array("Kirk", "Reynolds", "Reynolds");
 
-  if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (empty($_POST["captainPicker"])) {
-      $errCapt = "Please choose your favorite captain";
-    } else {
-      $nameCaptain = test_input($_POST["captainPicker"]);
-      appendToFile("fileCapt.txt", $nameCaptain);
-    }
-
-    if (empty($_POST["epicMountText"])) {
-      $errMount = "Please choose an epic mount";
-    } else if (!preg_match("/^[a-zA-Z ]*$/",$nameEpicMount)) {
-      $errMount = "Name invalid - Do not use special characters";
-      $nameEpicMount = "";
-    } else {
-      $nameEpicMount = test_input($_POST["epicMountText"]);
-      appendToFile("fileMount.txt", $nameEpicMount);
-    }
-
-    if (!isset($_POST["subSandwich"])) {
-      $errSub = "Please choose some sandwich ingredients";
-    } else {
-      $arraySub = $_POST["subSandwich"];
-      test_subSandwich($arraySub);
-      appendToFile("fileSub.txt", $arraySub);
-    }
-
-    if (empty($_POST["morningScale"]) || !ctype_digit($_POST["morningScale"])) {
-      $errScale = "Whoa?  You broke the scale.  Fix it!";
-    } else {
-      $morningScaleValue = $_POST["morningScale"];
-      appendToFile("fileScale.txt", $morningScaleValue);
-    }
+  if (isset($_POST)) {
+    testPostData();
   }
+
+  function testPOSTdata () {
+    $dataErr = "";
+    $nameCaptain = $nameEpicMount = "";
+    $arraySub = array();
+    $morningScaleValue = 0;
+
+    if (!isset($_SESSION["hasVisited"]) || $_SESSION["hasVisited"] == false) {
+      if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (empty($_POST["captainPicker"])) {
+          $dataErr = $dataErr . "Please choose your favorite captain/n";
+        } else {
+          $nameCaptain = test_input($_POST["captainPicker"]);
+        }
+
+        if (empty($_POST["epicMountText"])) {
+          $dataErr = $dataErr . "Please choose an epic mount/n";
+        } else if (!preg_match("/^[a-zA-Z ]*$/",$_POST["epicMountText"])) {
+          $dataErr = $dataErr . "Name invalid - Do not use special characters/n";
+        } else {
+          $nameEpicMount = test_input($_POST["epicMountText"]);
+        }
+
+        if (!isset($_POST["subSandwich"])) {
+          $dataErr = $dataErr . "Please choose some sandwich ingredients/n";
+        } else {
+          $arraySub = $_POST["subSandwich"];
+          //$dataErr = $dataErr . test_subSandwich($arraySub);
+        }
+
+        if (empty($_POST["morningScale"]) || !ctype_digit($_POST["morningScale"])) {
+          $dataErr = $dataErr . "Whoa?  You broke the scale.  Fix it!";
+        } else {
+          $morningScaleValue = $_POST["morningScale"];
+        }
+      }
+
+      if ($dataErr === "")
+      {
+        appendToFile("fileCapt.txt", $nameCaptain);
+        appendToFile("fileMount.txt", $nameEpicMount);
+        appendToFile("fileSub.txt", $arraySub);
+        appendToFile("fileScale.txt", $morningScaleValue);
+        $_SESSION["hasVisited"] = true;
+        unset($_POST);
+      } else {
+        ob_start();
+        $_SESSION["DATA_ERR"] = $dataErr;
+        while (ob_get_status())
+        {
+          ob_end_clean();
+        }
+        header( "Location: /PHPSurvey/survey.php");
+        unset($_POST);
+        die();
+      }
+
+    }
+
+  }
+
 
   function test_input($data) {
     $data = trim($data);
@@ -58,11 +87,16 @@
       $data = $arrayData[$x];
       if (!isset($subTestArray[$data]) || $subTestArray[$data]<1)
       {
-        $errSub = "Invalid sub data at $x";
+        $errSub = "Invalid sub data at $x/n";
         unset($arrayData);
-        break;
+        return $errSub;
       }
+      return "";
     }
+  }
+
+  function setVisited() {
+
   }
 
   function readFileToArray($fileName) {
@@ -89,6 +123,16 @@
     }
   }
 
+  function getAvg(&$arrayRead) {
+    $arrAvg = 0.0;
+    $arrlength = count($arrayRead);
+    for ($x = 0; $x < $arrlength; $x++) {
+      $arrAvg += $arrayRead[$x];
+    }
+    $arrAvg /= $arrlength - 1;
+    return $arrAvg;
+  }
+
   function sortResults(&$arrayKey) {
     //sorts an associative array by element
     arsort($arrayKey);
@@ -99,12 +143,17 @@
     if (is_array($data)) {
       $arrlength = count($data);
       for ($x = 0; $x < $arrlength; $x++) {
-        fwrite($myfile, $data[$x] . "\n");
+        if ($data[$x] != "") {
+          fwrite($myfile, $data[$x] . "\n");
+        }
       }
     } else {
-      fwrite($myfile, $data . "\n");
+      if ($data != "") {
+        fwrite($myfile, $data . "\n");
+      }
     }
   }
+
  ?>
 
 <DOCTYPE! HTML>
@@ -152,16 +201,6 @@
     </div>
   </div>
   <div class = "container">
-    <div class = "row">
-      <p>
-        <?php
-        echo "$errCapt";
-        echo "$errMount";
-        echo "$errSub";
-        echo "$errScale";
-        ?>
-      </p>
-    </div>
     <div class ="row">
       <h2>Most Popular Captain</h2>
       <?php
@@ -234,6 +273,22 @@
           ?>
         </tbody>
       </table>
+    </div>
+    <div class="panel-group text-center">
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h2>Our visitors are only</h2>
+        </div>
+        <div class="panel-body">
+          <h2>
+          <?php
+            $countArray = readFileToArray("fileScale.txt");
+            $countAvg = round(getAvg($countArray),2);
+            echo "$countAvg/10<br />awake in the morning, on average.";
+          ?>
+          </h2>
+        </div>
+      </div>
     </div>
   </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>

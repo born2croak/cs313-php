@@ -1,3 +1,20 @@
+
+<?php
+  session_start();
+  unset($_POST);
+  //$_SESSION["hasVisited"] = false;
+  $url = "/PHPSurvey/results.php";
+  if (isset($_SESSION["hasVisited"]) && $_SESSION["hasVisited"] == true) {
+    header( "Location: $url");
+    die();
+  }
+
+  if (isset($_SESSION["DATA_ERR"]) && $_SESSION["DATA_ERR"] != "") {
+    $error = $_SESSION["DATA_ERR"];
+    echo "<script>window.alert($error)</script>";
+  }
+?>
+
 <DOCTYPE! HTML>
 <html>
 <head>
@@ -36,7 +53,16 @@
   </nav>
   <div class="jumbotron">
     <div class="container">
-      <h1>PHP Survey</h1>
+      <div class="row">
+        <div class="col-sm-6">
+          <h1>PHP Survey</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-6">
+          <a href="results.php" role="button" class="btn btn-primary btn-lg" id="skipButton">Skip to results -></a>
+        </div>
+      </div>
     </div>
   </div>
   <div class="container">
@@ -142,7 +168,7 @@
                   <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Ketchup"/>Ketchup
                 </label>
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Pepper"/>Black Pepper
+                  <input type="checkbox" class="form-check-input" name="subSandwich[]" value="Black Pepper"/>Black Pepper
                 </label>
               </div>
             </div>
@@ -170,7 +196,7 @@
               <span class="badge" id="showMorningScale">5</span>
             </p>
           </div>
-          <input type="submit" class="btn btn-info" value="Submit" />
+          <input type="submit" class="btn btn-info btn-lg" value="Submit" />
         </form>
       </div>
     </div>
