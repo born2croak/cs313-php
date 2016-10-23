@@ -1,11 +1,19 @@
-
 <?php
 session_start();
 //define sql statement constants;
 define("SQL_GET_GAME", "SELECT * FROM public.game_table WHERE game_id = :game_id");
+define("SQL_CREATE_GAME", "INSERT INTO public.game_table(current_round) VALUES (0)");
+define("SQL_CREATE_PLAYER", "INSERT INTO public.player_table(name) VALUES ( :name )");
+define("SQL_LINK_PLAYER", "INSERT INTO public.player_link_table(game_id, player_id, flag_ready, player_pos)
+                            VALUES (:game_id, :player_id, false, :player_pos )");
+define("SQL_GET_PLAYERS", "SELECT * FROM public.player_link_table WHERE game_id = :game_id ORDER BY player_pos");
+define("SQL_GET_PLAYER_NAME", "SELECT name FROM public.player_table WHERE player_id = :player_id");
+//open DB Stuff
 
 
 $errorMSG = "";
+
+
 // default Heroku Postgres configuration URL
 $dbUrl = getenv('DATABASE_URL');
 
@@ -34,51 +42,60 @@ catch (PDOException $ex) {
  die();
 }
 
-
-function test_input($data) {
-  $data = trim($data);
-  $data = stripslashes($data);
-  $data = htmlspecialchars($data);
-  return $data;
+if (!isset($_SESSION["gameID"])) {
+  $errorMSG = "No Game ID found!";
+  die();
+} else {
+  $gameID = $_SESSION["gameID"];
 }
 
-//validation for the game_id entered
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["gameid"])) {
-  $gameID = test_input($_GET["gameid"]);
-  global $db;
+$gameURL = "https://calm-peak-86088.herokuapp.com/DrawingGame/gamestart.php=$gameID";
 
-//does the game id exist in the database?
-  if (isset($gameID)) {
+$gameSettings = getGame($gameID);
+$playerList = getPlayers($gameID);
+//print_r($playerList);
+
+function getPlayers($gameID) {
+  global $db;
+  try {
+    $players = array();
+    $sth = $db->prepare(SQL_GET_PLAYERS);
+    $sth->execute(array(':game_id' => $gameID));
+    $sthOut = $sth->fetchAll();
+    if (isset($sthOut[0])) {
+      foreach ($sthOut as $row) {
+        $sth = $db->prepare(SQL_GET_PLAYER_NAME);
+        $sth->execute(array(':player_id' => $row["player_id"]));
+        $playerName = $sth->fetchAll()[0];
+        $row["name"] = $playerName[0];
+        array_push($players, $row);
+      }
+      return $players;
+    }
+  }
+  catch (Exception $ex) {
+    echo "<h1>$ex</h1>";
+    die();
+  }
+}
+
+function getGame($gameID) {
+  global $db;
+  try {
     $sth = $db->prepare(SQL_GET_GAME);
     $sth->execute(array(':game_id' => $gameID));
     $sthOut = $sth->fetchAll();
     if (isset($sthOut[0])) {
       $result = $sthOut[0];
+      return $result;
     }
-    //print_r($result);
   }
-  else {
-    echo "<p>
-    Game ID is invalid!
-    </p>";
-  }
-
-  // if the game exists
-  if (isset($result)) {
-    $_SESSION["gameID"]=$gameID;
-    header("Location: gameLobby.php");
+  catch (Exception $ex) {
+    echo "<h1>$ex</h1>";
     die();
   }
-  else {
-    $errorMSG = "No game found with Game ID: $gameID";
-  }
 }
-
-
-
 ?>
-
-
 
 <DOCTYPE! html>
 <html>
@@ -103,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["gameid"])) {
       </div>
       <ul class="nav nav-pills">
         <li>
-          <a href="index.php">Home</a>
+          <a href="../index.php">Home</a>
         </li>
         <li class="dropdown active">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Lessons
@@ -120,17 +137,26 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["gameid"])) {
 
   <div class="container">
     <div class="row">
-      <div class="col-xs-6">
+      <div class="col-xs-8">
+        <div class="well we1l-lg">
+          <h5><?php echo "Game ID = $gameID"?></h5>
+          <h5><?php echo "Game URL = $gameURL"?></h5>
+          <h5><?php $round = $gameSettings["current_round"];
+                    echo "Round = $round";
+          ?>
+          </h5>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-8">
         <div class="well well-lg text-center">
-          <form method="get" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-          <h2>Picture Telephone Game!</h2>
-          <a class="btn btn-primary btn-lg" href="./newGame.php" role="button">Create Game</a>
-          <h3>Or...</h3>
-          <div class="form-group">
-            <input type="number" class="form-control input-lg" id="gameid" name="gameid" placeholder="Game ID"/>
-            <button type="submit" class="btn btn-primary btn-lg" >Join Game</button>
-          </div>
-          </form>
+          <?php
+            foreach ($playerList as $player) {
+              $playerName = $player['name'];
+              echo "<h3>$playerName</h3>";
+            }
+          ?>
           <?php echo "<h3>$errorMSG</h3>"?>
         </div>
       </div>

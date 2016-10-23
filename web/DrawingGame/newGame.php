@@ -1,8 +1,13 @@
-
 <?php
 session_start();
+session_unset();
 //define sql statement constants;
 define("SQL_GET_GAME", "SELECT * FROM public.game_table WHERE game_id = :game_id");
+define("SQL_CREATE_GAME", "INSERT INTO public.game_table(current_round) VALUES (0)");
+define("SQL_CREATE_PLAYER", "INSERT INTO public.player_table(name) VALUES ( :name )");
+define("SQL_LINK_PLAYER", "INSERT INTO public.player_link_table(game_id, player_id, flag_ready, player_pos)
+                            VALUES (:game_id, :player_id, false, :player_pos )");
+//open DB Stuff
 
 
 $errorMSG = "";
@@ -35,6 +40,22 @@ catch (PDOException $ex) {
 }
 
 
+
+//if you got here without an existing gameID
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["myName"])) {
+  //todo: name must be under 128 characters
+  $myName = test_input($_POST["myName"]);
+  if (isset($myName) && $myName != "") {
+    createNewGame();
+    createNewPlayer($myName, $_SESSION["gameID"], 1);
+    header("Location: gameLobby.php");
+    die();
+  } else {
+    $errorMSG = "Name was not valid.  Try again.";
+  }
+
+}
+
 function test_input($data) {
   $data = trim($data);
   $data = stripslashes($data);
@@ -42,43 +63,23 @@ function test_input($data) {
   return $data;
 }
 
-//validation for the game_id entered
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["gameid"])) {
-  $gameID = test_input($_GET["gameid"]);
+function createNewGame() {
   global $db;
-
-//does the game id exist in the database?
-  if (isset($gameID)) {
-    $sth = $db->prepare(SQL_GET_GAME);
-    $sth->execute(array(':game_id' => $gameID));
-    $sthOut = $sth->fetchAll();
-    if (isset($sthOut[0])) {
-      $result = $sthOut[0];
-    }
-    //print_r($result);
-  }
-  else {
-    echo "<p>
-    Game ID is invalid!
-    </p>";
-  }
-
-  // if the game exists
-  if (isset($result)) {
-    $_SESSION["gameID"]=$gameID;
-    header("Location: gameLobby.php");
-    die();
-  }
-  else {
-    $errorMSG = "No game found with Game ID: $gameID";
-  }
+  $sth = $db->prepare(SQL_CREATE_GAME);
+  $sth->execute();
+  $_SESSION["gameID"] = $gameID = $db->lastInsertId('game_table_game_id_seq');
 }
 
-
-
+function createNewPlayer($name, $gameID, $playerPos) {
+  global $db;
+  $sth = $db->prepare(SQL_CREATE_PLAYER);
+  $sth->execute(array(':name' => $name));
+  $playerID = $db->lastInsertId('player_table_player_id_seq');
+  $sth = $db->prepare(SQL_LINK_PLAYER);
+  $sth->execute(array(':game_id' => $gameID, ':player_id' => $playerID, ':player_pos' => $playerPos ));
+  $_SESSION["playerID"] = $playerID = $db->lastInsertId('player_table_player_id_seq');
+}
 ?>
-
-
 
 <DOCTYPE! html>
 <html>
@@ -103,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["gameid"])) {
       </div>
       <ul class="nav nav-pills">
         <li>
-          <a href="index.php">Home</a>
+          <a href="../index.php">Home</a>
         </li>
         <li class="dropdown active">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Lessons
@@ -122,14 +123,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["gameid"])) {
     <div class="row">
       <div class="col-xs-6">
         <div class="well well-lg text-center">
-          <form method="get" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-          <h2>Picture Telephone Game!</h2>
-          <a class="btn btn-primary btn-lg" href="./newGame.php" role="button">Create Game</a>
-          <h3>Or...</h3>
-          <div class="form-group">
-            <input type="number" class="form-control input-lg" id="gameid" name="gameid" placeholder="Game ID"/>
-            <button type="submit" class="btn btn-primary btn-lg" >Join Game</button>
-          </div>
+          <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+            <div class="form-group">
+              <input type="text" class="form-control input-lg" id="myName" name="myName" placeholder="Enter Name"  />
+              <button type="submit" class="btn btn-primary btn-lg">Join Lobby</button>
+            </div>
           </form>
           <?php echo "<h3>$errorMSG</h3>"?>
         </div>
